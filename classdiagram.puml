@@ -17,6 +17,8 @@ class Wallet {
   + checkBalance()
 }
 class MainWallet {
+  + createSideWallet()
+  + deleteSideWallet()
   + inputWalletPassword()
 }
 class SideWallet {
@@ -25,7 +27,6 @@ class SideWallet {
   + authenticateWallet()
   + createTransaction()
 }
-
 class Transaction {
   - transactionId : int
   - amount : double
