@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+entity AppUser {
+  PK user_id : int
+  --
+  username : varchar
+  email : varchar
+  login_password : varchar
+}
+entity MainWallet {
+  PK main_wallet_id : int
+  --
+  FK user_id : int
+  balance : double
+}
+entity SideWallet {
+  PK side_wallet_id : int
+  --
+  FK main_wallet_id : int
+  wallet_name : varchar
+  wallet_password : varchar
+  balance : double
+}
+entity Transaction {
+  PK transaction_id : int
+  --
+  FK side_wallet_id : int
+  amount : double
+  transaction_type : bool
+  transaction_date : datetime
+}
+AppUser ||--|| MainWallet
+MainWallet ||--o{ SideWallet
+MainWallet ||--o{ Transaction
+SideWallet ||--o{ Transaction
+@enduml
