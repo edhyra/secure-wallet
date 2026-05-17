@@ -1,0 +1,13 @@
+{
+  "name": "Secure Wallet Devcontainer",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance"
+  ],
+  "forwardPorts": [8501, 27017],
+  "remoteUser": "root"
+}
