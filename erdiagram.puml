@@ -31,6 +31,5 @@ entity Transaction {
 }
 AppUser ||--|| MainWallet
 MainWallet ||--o{ SideWallet
-MainWallet ||--o{ Transaction
 SideWallet ||--o{ Transaction
 @enduml
