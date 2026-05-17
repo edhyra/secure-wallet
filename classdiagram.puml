@@ -1,0 +1,42 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+class User {
+  # userId : int
+  + login()
+}
+class AppUser {
+  - username : string
+  - email : string
+  - passwordHash : string
+  + logout()
+}
+class Wallet {
+  # walletId : int
+  # balance : double
+  + checkBalance()
+}
+class MainWallet {
+  + inputWalletPassword()
+}
+class SideWallet {
+  - walletName : string
+  - walletPasswordHash : string
+  + authenticateWallet()
+  + createTransaction()
+}
+
+class Transaction {
+  - transactionId : int
+  - amount : double
+  - transactionType : Boolean
+  - transactionDate : Date
+  + getTransactionDetail()
+}
+User <|-- AppUser
+Wallet <|-- MainWallet
+Wallet <|-- SideWallet
+AppUser "1" -- "1" MainWallet : owns
+MainWallet "1" -- "0..*" SideWallet : contains
+SideWallet "1" -- "0..*" Transaction : creates
+@enduml
