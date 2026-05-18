@@ -14,6 +14,39 @@ import streamlit as st
 from app import db, auth
 
 
+def inject_styles():
+    """Inject global CSS styles for improved typography and wallet cards."""
+    st.markdown(
+        """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        :root{
+            --pw-0: #FDE68A;
+            --pw-1: #C7F9CC;
+            --pw-2: #CFE9F0;
+            --pw-3: #F8D1F8;
+            --pw-4: #FFDDD2;
+            --pw-5: #E3F2FD;
+        }
+        html, body, [class*="css"] { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; font-size:16px; }
+        .wallet-card{ padding:10px 12px; border-radius:10px; box-shadow: 0 6px 12px rgba(2,6,23,0.06); display:inline-block; font-weight:600; color:#07111a; }
+        .wallet-color-0{ background: var(--pw-0); }
+        .wallet-color-1{ background: var(--pw-1); }
+        .wallet-color-2{ background: var(--pw-2); }
+        .wallet-color-3{ background: var(--pw-3); }
+        .wallet-color-4{ background: var(--pw-4); }
+        .wallet-color-5{ background: var(--pw-5); }
+        .main-balance{ font-size:1.35rem; font-weight:700; padding:6px 10px; display:inline-block; border-radius:8px; transition:transform 0.3s ease, opacity 0.3s ease; }
+        .main-balance.animate{ animation: balance-pop 0.6s ease; }
+        @keyframes balance-pop{ 0%{ transform: scale(0.96); opacity:0.6 } 50%{ transform: scale(1.06); opacity:1 } 100%{ transform: scale(1.0); opacity:1 } }
+        .section{ margin-bottom:18px; }
+        .stButton>button{ font-size:1rem; padding:8px 12px; border-radius:8px; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def safe_rerun():
     """Safely attempt to rerun the Streamlit script.
 
@@ -33,6 +66,7 @@ def safe_rerun():
     except Exception:
         # Last resort: stop execution
         st.stop()
+    
 
 
 def _init_db():
@@ -123,7 +157,17 @@ def dashboard_view(database):
 
     # Main Wallet summary (only show main wallet balance)
     st.subheader("Main Wallet")
-    st.write(f"Balance: {main_wallet.get('balance', 0.0):.2f}")
+    current_balance = float(main_wallet.get("balance", 0.0))
+    last_balance = st.session_state.get("_last_main_balance")
+    animate = False
+    if last_balance is None:
+        st.session_state["_last_main_balance"] = current_balance
+    elif round(float(last_balance), 8) != round(current_balance, 8):
+        animate = True
+        st.session_state["_last_main_balance"] = current_balance
+
+    anim_class = "animate" if animate else ""
+    st.markdown(f'<div class="main-balance {anim_class}">Balance: {current_balance:.2f}</div>', unsafe_allow_html=True)
 
     # Initialize active_menu state (single active menu at a time)
     if "active_menu" not in st.session_state:
@@ -164,10 +208,11 @@ def dashboard_view(database):
                     safe_rerun()
 
     # Render each side wallet row
-    for sw in side_wallets:
+    for idx, sw in enumerate(side_wallets):
         sid = str(sw["_id"])
         cols = st.columns([6, 1, 1])
-        cols[0].write(sw["wallet_name"])
+        color_class = f"wallet-color-{idx % 6}"
+        cols[0].markdown(f'<div class="wallet-card {color_class}">{sw["wallet_name"]}</div>', unsafe_allow_html=True)
 
         # Open button (disabled when any wallet unlocked)
         if not any_unlocked and not st.session_state.get(f"access_{sid}"):
@@ -292,6 +337,7 @@ def dashboard_view(database):
 
 def main():
     st.set_page_config(page_title="Secure Wallet", page_icon="💼")
+    inject_styles()
     database = _init_db()
 
     if "user" not in st.session_state:
